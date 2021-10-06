@@ -1,36 +1,32 @@
 'use strict';
 import vimeo from '@vimeo/player';
-import throttle from "lodash.throttle";
+import throttle from 'lodash.throttle';
 
-const STORAGE_KEY = "videoplayer-current-time";
+const STORAGE_KEY = 'videoplayer-current-time';
 
 const iframe = document.querySelector('iframe');
 const player = new Vimeo.Player(iframe);
 
-    player.on('play', function() {
-        console.log('played the video!');
-    });
+player.on('play', function () {
+  console.log('played the video!');
+});
 
-    player.getVideoTitle().then(function(title) {
-        console.log('title:', title);
-    });
-
+player.getVideoTitle().then(function (title) {
+  console.log('title:', title);
+});
 
 var onPlay = function (data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-   
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data.seconds));
 };
 
-player.on('timeupdate', throttle(onPlay, 1000));
-
-const currentTime = localStorage.getItem(STORAGE_KEY) === null
-      ? 0 : localStorage.getItem(STORAGE_KEY);
+const currentTime = localStorage.getItem(STORAGE_KEY);
 
 const parseCurrentTime = JSON.parse(currentTime);
 
+if (currentTime) {
+  player.setCurrentTime(parseCurrentTime.seconds);
+} else {
+  player.setCurrentTime(0);
+}
 
-
-player.setCurrentTime(parseCurrentTime.seconds);
-
-
-
+player.on('timeupdate', throttle(onPlay, 1000));
